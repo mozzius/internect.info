@@ -10,6 +10,7 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "Bluesky Handle Resolution tool",
   description: "Resolve a Bluesky handle to a DID",
+  metadataBase: new URL("https://resolve-handle.graysky.app"),
 };
 
 export default function RootLayout({
