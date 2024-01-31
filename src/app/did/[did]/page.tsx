@@ -23,15 +23,9 @@ export default async function InfoScreen({
 
   const agent = getAgent();
 
-  const doc = (await fetch(`https://plc.directory/${did}`)
-    .then((res) => res.json())
-    .catch(() =>
-      redirect(
-        `/?error=${encodeURIComponent(
-          `Could not find "${did}" in the PLC directory`
-        )}`
-      )
-    )) as {
+  const doc = (await fetch(`https://plc.directory/${did}`).then((res) =>
+    res.json()
+  )) as {
     "@context": string[];
     id: string;
     alsoKnownAs?: string[];
@@ -48,11 +42,11 @@ export default async function InfoScreen({
     (res) => res.json()
   );
 
-  console.log(doc);
-
-  // console.log(audit);
-
-  const profile = await agent.getProfile({ actor: did });
+  const profile = await agent
+    .getProfile({ actor: did })
+    .catch(() =>
+      redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`)
+    );
 
   const intl = new Intl.DateTimeFormat("en-GB", {
     dateStyle: "full",
@@ -83,27 +77,38 @@ export default async function InfoScreen({
         </div>
       </Link>
       <div className="rounded-md w-full py-3 px-4 flex flex-col gap-2 border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
-        <div className="flex gap-2 items-center">
-          <UserIcon className="inline-block text-gray-500" size={14} />
-          <p className="text-sm">
-            <span className="text-gray-500">Names and aliases:</span>{" "}
-            {doc.alsoKnownAs?.join(", ") ?? "None"}
-          </p>
-        </div>
-        <div className="flex gap-2 items-center">
-          <CakeIcon className="inline-block text-gray-500" size={14} />
-          <p className="text-sm">
-            <span className="text-gray-500">First appearance:</span>{" "}
-            {intl.format(new Date(audit[0].createdAt))}
-          </p>
-        </div>
-        <div className="flex gap-2 items-center">
-          <DatabaseIcon className="inline-block text-gray-500" size={14} />
-          <p className="text-sm">
-            <span className="text-gray-500">Personal Data Server:</span>{" "}
-            {pds ? pds.serviceEndpoint : "Not specified"}
-          </p>
-        </div>
+        <p className="text-sm">
+          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+            <UserIcon
+              className="inline-block text-gray-500 absolute left-0"
+              size={14}
+            />
+            Names and aliases:
+          </span>{" "}
+          {doc.alsoKnownAs?.join(", ") ?? "None"}
+        </p>
+
+        <p className="text-sm">
+          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+            <CakeIcon
+              className="inline-block text-gray-500 absolute left-0"
+              size={14}
+            />
+            First appearance:
+          </span>{" "}
+          {intl.format(new Date(audit[0].createdAt))}
+        </p>
+
+        <p className="text-sm">
+          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+            <DatabaseIcon
+              className="inline-block text-gray-500 absolute left-0"
+              size={14}
+            />
+            Personal Data Server:
+          </span>{" "}
+          {pds ? pds.serviceEndpoint : "Not specified"}
+        </p>
       </div>
       <div className="flex justify-between w-full">
         <Link href="/">
