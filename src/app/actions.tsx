@@ -8,7 +8,7 @@ export async function resolveHandle(_: string | undefined, formData: FormData) {
   if (typeof handle !== "string") return;
   if (handle.startsWith("did:")) {
     if (handle.startsWith("did:plc:")) {
-      redirect(`/did/${encodeURIComponent(handle)}`);
+      redirect(`/did/${handle}`);
     } else {
       return "Non-PLC DIDs are not supported by this tool.";
     }
@@ -21,7 +21,7 @@ export async function resolveHandle(_: string | undefined, formData: FormData) {
     });
 
     if (res.success) {
-      redirect(`/did/${encodeURIComponent(res.data.did)}`);
+      redirect(`/did/${res.data.did}`);
     } else {
       return "Handle not found. Are you sure it's correct?";
     }

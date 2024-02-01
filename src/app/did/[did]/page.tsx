@@ -10,6 +10,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "~/components/ui/button";
 import { getAgent } from "~/lib/agent";
+import { DateTime } from "./datetime";
+import { AuditRecord, HistoryDialog } from "./history";
 
 export default async function InfoScreen({
   params: { did },
@@ -38,20 +40,15 @@ export default async function InfoScreen({
     service?: { id: string; type: string; serviceEndpoint: string }[];
   };
 
-  const audit = await fetch(`https://plc.directory/${did}/log/audit`).then(
+  const audit = (await fetch(`https://plc.directory/${did}/log/audit`).then(
     (res) => res.json()
-  );
+  )) as AuditRecord[];
 
   const profile = await agent
     .getProfile({ actor: did })
     .catch(() =>
       redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`)
     );
-
-  const intl = new Intl.DateTimeFormat("en-GB", {
-    dateStyle: "full",
-    timeStyle: "short",
-  });
 
   const pds = doc.service?.find((s) => s.type === "AtprotoPersonalDataServer");
 
@@ -85,7 +82,8 @@ export default async function InfoScreen({
             />
             Names and aliases:
           </span>{" "}
-          {doc.alsoKnownAs?.join(", ") ?? "None"}
+          {doc.alsoKnownAs?.join(", ") ?? "None"} -{" "}
+          <HistoryDialog log={audit} />
         </p>
 
         <p className="text-sm">
@@ -96,7 +94,7 @@ export default async function InfoScreen({
             />
             First appearance:
           </span>{" "}
-          {intl.format(new Date(audit[0].createdAt))}
+          <DateTime date={new Date(audit[0].createdAt)} />
         </p>
 
         <p className="text-sm">

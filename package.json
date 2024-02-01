@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@atproto/api": "^0.9.5",
+    "@radix-ui/react-dialog": "^1.0.5",
+    "@radix-ui/react-scroll-area": "^1.0.5",
     "@radix-ui/react-slot": "^1.0.2",
     "@vercel/analytics": "^1.1.2",
     "class-variance-authority": "^0.7.0",
@@ -22,7 +24,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^20.11.14",
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
