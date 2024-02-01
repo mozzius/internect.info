@@ -6,6 +6,8 @@ import { getAgent } from "~/lib/agent";
 export async function resolveHandle(_: string | undefined, formData: FormData) {
   let handle = formData.get("handle");
   if (typeof handle !== "string") return;
+
+  handle = handle.trim();
   if (handle.startsWith("did:")) {
     if (handle.startsWith("did:plc:")) {
       redirect(`/did/${handle}`);
@@ -21,7 +23,11 @@ export async function resolveHandle(_: string | undefined, formData: FormData) {
     });
 
     if (res.success) {
-      redirect(`/did/${res.data.did}`);
+      if (res.data.did.startsWith("did:plc:")) {
+        redirect(`/did/${res.data.did}`);
+      } else {
+        return "Non-PLC DIDs are not supported by this tool.";
+      }
     } else {
       return "Handle not found. Are you sure it's correct?";
     }
