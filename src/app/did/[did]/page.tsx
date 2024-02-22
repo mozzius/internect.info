@@ -83,8 +83,8 @@ export default async function InfoScreen({ params: { did } }: Props) {
         {pds && (
           <p className="bg-neutral-50 border rounded-sm px-2 mt-2 py-px max-w-max mx-auto">
             {pds.serviceEndpoint.endsWith("bsky.network")
-              ? "still in the mycosphere"
-              : "internected!"}
+              ? "still in the mycosphere..."
+              : "internecting in the ATmosphere!"}
           </p>
         )}
       </div>
