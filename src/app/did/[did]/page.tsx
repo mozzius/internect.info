@@ -1,5 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import {
+  AtSign,
+  AtSignIcon,
   CakeIcon,
   CalendarIcon,
   DatabaseIcon,
@@ -54,11 +56,21 @@ export default async function InfoScreen({
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 lg:p-24 max-w-4xl mx-auto">
-      <h1 className="scroll-m-20 mb-8 text-4xl font-extrabold tracking-tight break-all">
-        {did}
-      </h1>
+      <div className="w-full text-center flex flex-col gap-2">
+        <p>Personal Data Service:</p>
+        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight">
+          {pds ? pds.serviceEndpoint : "???"}
+        </h1>
+        {pds && (
+          <p className="bg-neutral-50 border rounded-sm px-2 mt-2 py-px max-w-max mx-auto">
+            {pds.serviceEndpoint.endsWith("bsky.network")
+              ? "still in the mycosphere"
+              : "internected!"}
+          </p>
+        )}
+      </div>
       <Link
-        className="rounded-md border w-full py-3 px-4 items-center flex gap-4 border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
+        className="mt-8 rounded-md border w-full py-3 px-4 items-center flex gap-4 border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
         href={`https://bsky.app/profile/${did}`}
       >
         <img
@@ -77,6 +89,17 @@ export default async function InfoScreen({
         <p className="text-sm">
           <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
             <UserIcon
+              className="inline-block text-gray-500 absolute left-0"
+              size={14}
+            />
+            DID:
+          </span>{" "}
+          {did}
+        </p>
+
+        <p className="text-sm">
+          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+            <AtSignIcon
               className="inline-block text-gray-500 absolute left-0"
               size={14}
             />
