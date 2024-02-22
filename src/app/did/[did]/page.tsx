@@ -14,12 +14,28 @@ import { Button } from "~/components/ui/button";
 import { getAgent } from "~/lib/agent";
 import { DateTime } from "./datetime";
 import { AuditRecord, HistoryDialog } from "./history";
+import { Metadata } from "next";
 
-export default async function InfoScreen({
-  params: { did },
-}: {
+interface Props {
   params: { did: string };
-}) {
+}
+
+export const generateMetadata = async ({
+  params: { did },
+}: Props): Promise<Metadata> => {
+  const agent = getAgent();
+
+  const profile = await agent.getProfile({ actor: did });
+
+  return {
+    title: `@${profile.data.handle} - internect.info`,
+    description: `Information about ${
+      profile.data.displayName || `@${profile.data.handle}`
+    }`,
+  };
+};
+
+export default async function InfoScreen({ params: { did } }: Props) {
   did = decodeURIComponent(did);
   if (!did.startsWith("did:")) {
     redirect(`/did/${encodeURIComponent(`${did} is an invalid DID`)}`);
