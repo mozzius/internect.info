@@ -23,6 +23,7 @@ interface Props {
 export const generateMetadata = async ({
   params: { did },
 }: Props): Promise<Metadata> => {
+  did = decodeURIComponent(did);
   const agent = getAgent();
 
   const profile = await agent.getProfile({ actor: did });
