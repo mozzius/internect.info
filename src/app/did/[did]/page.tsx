@@ -44,9 +44,9 @@ export default async function InfoScreen({ params: { did } }: Props) {
 
   const agent = getAgent();
 
-  const doc = (await fetch(`https://plc.directory/${did}`).then((res) =>
-    res.json()
-  )) as {
+  const doc = (await fetch(`https://plc.directory/${did}`, {
+    cache: "no-store",
+  }).then((res) => res.json())) as {
     "@context": string[];
     id: string;
     alsoKnownAs?: string[];
@@ -59,9 +59,9 @@ export default async function InfoScreen({ params: { did } }: Props) {
     service?: { id: string; type: string; serviceEndpoint: string }[];
   };
 
-  const audit = (await fetch(`https://plc.directory/${did}/log/audit`).then(
-    (res) => res.json()
-  )) as AuditRecord[];
+  const audit = (await fetch(`https://plc.directory/${did}/log/audit`, {
+    cache: "no-store",
+  }).then((res) => res.json())) as AuditRecord[];
 
   const profile = await agent
     .getProfile({ actor: did })
@@ -69,7 +69,9 @@ export default async function InfoScreen({ params: { did } }: Props) {
       redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`)
     );
 
-  const pds = doc.service?.findLast((s) => s.type === "AtprotoPersonalDataServer");
+  const pds = doc.service?.findLast(
+    (s) => s.type === "AtprotoPersonalDataServer"
+  );
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 lg:p-24 max-w-4xl mx-auto">
