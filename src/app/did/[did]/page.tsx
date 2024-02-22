@@ -69,7 +69,7 @@ export default async function InfoScreen({ params: { did } }: Props) {
       redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`)
     );
 
-  const pds = doc.service?.find((s) => s.type === "AtprotoPersonalDataServer");
+  const pds = doc.service?.findLast((s) => s.type === "AtprotoPersonalDataServer");
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 lg:p-24 max-w-4xl mx-auto">

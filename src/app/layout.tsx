@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { Bitter } from "next/font/google";
+import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
 import { cn } from "~/lib/utils";
 import "./globals.css";
 
-const inter = Bitter({ subsets: ["latin"], variable: "--font-sans" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "internect.info - Resolve a Bluesky handle",
