@@ -93,7 +93,7 @@ export default async function InfoScreen({ params: { did } }: Props) {
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-4 p-4 lg:p-24">
       <div className="flex w-full flex-col gap-2 text-center">
-        <p>Personal Data Service:</p>
+        <p>Personal Data Server:</p>
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight">
           {serviceEndpoint}
         </h1>
