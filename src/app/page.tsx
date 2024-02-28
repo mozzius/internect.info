@@ -18,9 +18,12 @@ export default function Home({
           size={20}
         />
       </Link>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-        Resolve a <span className="text-blue-500">Bluesky</span> handle
-      </h1>
+      <div>
+        <p className="font-mono px-1.5 border rounded inline py-1">internect.info</p>
+        <h1 className="scroll-m-20 mt-2 text-4xl font-extrabold tracking-tight lg:text-5xl">
+          Resolve a <span className="text-blue-500">Bluesky</span> handle
+        </h1>
+      </div>
       {error && <p className="text-red-500 text-sm">{error}</p>}
       <Form />
     </main>

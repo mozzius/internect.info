@@ -1,4 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
+import { Metadata } from "next";
+import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   AtSign,
   AtSignIcon,
@@ -8,13 +11,12 @@ import {
   ExternalLinkIcon,
   UserIcon,
 } from "lucide-react";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+
 import { Button } from "~/components/ui/button";
 import { getAgent } from "~/lib/agent";
+import { CopyableText } from "./copyable-text";
 import { DateTime } from "./datetime";
 import { AuditRecord, HistoryDialog } from "./history";
-import { Metadata } from "next";
 
 interface Props {
   params: { did: string };
@@ -66,60 +68,75 @@ export default async function InfoScreen({ params: { did } }: Props) {
   const profile = await agent
     .getProfile({ actor: did })
     .catch(() =>
-      redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`)
+      redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`),
     );
 
   const pds = doc.service?.findLast(
-    (s) => s.type === "AtprotoPersonalDataServer"
+    (s) => s.type === "AtprotoPersonalDataServer",
   );
 
+  let serviceEndpoint = pds?.serviceEndpoint ?? "???";
+
+  let isBskyHost = false;
+
+  if (pds?.serviceEndpoint.endsWith("host.bsky.network")) {
+    isBskyHost = true;
+    const mushroom = serviceEndpoint
+      .replace("https://", "")
+      .split(".")
+      .shift()!;
+    serviceEndpoint = `🍄 ${mushroom[0].toLocaleUpperCase()}${mushroom.slice(
+      1,
+    )}`;
+  }
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-4 lg:p-24 max-w-4xl mx-auto">
-      <div className="w-full text-center flex flex-col gap-2">
+    <main className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-4 p-4 lg:p-24">
+      <div className="flex w-full flex-col gap-2 text-center">
         <p>Personal Data Service:</p>
         <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight">
-          {pds ? pds.serviceEndpoint : "???"}
+          {serviceEndpoint}
         </h1>
         {pds && (
-          <p className="bg-neutral-50 border rounded-sm px-2 mt-2 py-px max-w-max mx-auto">
-            {pds.serviceEndpoint.endsWith("bsky.network")
+          <p className="mx-auto mt-2 max-w-max rounded-sm border bg-neutral-50 px-2 py-px">
+            {isBskyHost
               ? "still in the mycosphere..."
               : "internecting in the ATmosphere!"}
           </p>
         )}
       </div>
       <Link
-        className="mt-8 rounded-md border w-full py-3 px-4 items-center flex gap-4 border-slate-200 bg-white hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
+        className="mt-8 flex w-full items-center gap-4 rounded-md border border-slate-200 bg-white px-4 py-3 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
         href={`https://bsky.app/profile/${did}`}
       >
         <img
           src={profile.data.avatar}
           alt={profile.data.displayName ?? profile.data.handle}
-          className="rounded-full w-14 h-14"
+          className="h-14 w-14 rounded-full"
         />
         <div>
           <p className="text-xl font-semibold">
             {profile.data.displayName ?? profile.data.handle}
           </p>
-          <p className="text-gray-500 text-sm">@{profile.data.handle}</p>
+          <p className="text-sm text-gray-500">@{profile.data.handle}</p>
         </div>
       </Link>
-      <div className="rounded-md w-full py-3 px-4 flex flex-col gap-2 border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-950">
+      <div className="flex w-full flex-col gap-2 rounded-md border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950">
         <p className="text-sm">
-          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
             <UserIcon
-              className="inline-block text-gray-500 absolute left-0"
+              className="absolute left-0 inline-block text-gray-500"
               size={14}
             />
             DID:
           </span>{" "}
-          {did}
+          <CopyableText text={did} />
         </p>
 
         <p className="text-sm">
-          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
             <AtSignIcon
-              className="inline-block text-gray-500 absolute left-0"
+              className="absolute left-0 inline-block text-gray-500"
               size={14}
             />
             Names and aliases:
@@ -129,9 +146,9 @@ export default async function InfoScreen({ params: { did } }: Props) {
         </p>
 
         <p className="text-sm">
-          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
             <CakeIcon
-              className="inline-block text-gray-500 absolute left-0"
+              className="absolute left-0 inline-block text-gray-500"
               size={14}
             />
             First appearance:
@@ -140,9 +157,9 @@ export default async function InfoScreen({ params: { did } }: Props) {
         </p>
 
         <p className="text-sm">
-          <span className="text-gray-500 flex gap-2 items-center md:inline-flex relative pl-5">
+          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
             <DatabaseIcon
-              className="inline-block text-gray-500 absolute left-0"
+              className="absolute left-0 inline-block text-gray-500"
               size={14}
             />
             Personal Data Server:
@@ -150,14 +167,14 @@ export default async function InfoScreen({ params: { did } }: Props) {
           {pds ? pds.serviceEndpoint : "Not specified"}
         </p>
       </div>
-      <div className="flex justify-between w-full">
+      <div className="flex w-full justify-between">
         <Link href="/">
           <Button variant="link">Back</Button>
         </Link>
         <Link href={`https://web.plc.directory/did/${did}`}>
           <Button variant="outline">
             View on plc.directory
-            <ExternalLinkIcon className="inline-block ml-2" size={14} />
+            <ExternalLinkIcon className="ml-2 inline-block" size={14} />
           </Button>
         </Link>
       </div>

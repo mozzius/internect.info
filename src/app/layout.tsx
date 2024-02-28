@@ -3,7 +3,10 @@ import { Open_Sans } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
 import { cn } from "~/lib/utils";
+
 import "./globals.css";
+
+import { Toaster } from "~/components/ui/sonner";
 
 const font = Open_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -23,11 +26,12 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "min-h-screen bg-background font-sans antialiased",
-          font.variable
+          "bg-background min-h-screen font-sans antialiased",
+          font.variable,
         )}
       >
         {children}
+        <Toaster />
         <Analytics />
       </body>
     </html>

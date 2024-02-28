@@ -1,3 +1,3 @@
-# Bluesky Handle Resolution tool
+# internect.info
 
-Get some information about a handle.
+Get some information about a Bluesky handle.
