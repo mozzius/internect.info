@@ -19,8 +19,6 @@ import { NSID } from "@atproto/syntax";
 import { z } from "zod";
 import { zodToJsonSchema } from "zod-to-json-schema";
 
-export const revalidate = 60 * 60 * 24; // 24 hours
-
 export const GET = async () => {
   const schema = zodToJsonSchema(
     // copied from lexiconDoc, but defs changed to union
