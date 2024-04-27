@@ -30,8 +30,9 @@ const Fields = () => {
         placeholder="alice.bsky.social"
         required
         disabled={pending}
+        className="text-base"
       />
-      <Button type="submit" variant="secondary" disabled={pending}>
+      <Button type="submit" variant="secondary" disabled={pending} className="text-base">
         Resolve
         {pending && <Loader2Icon className="ml-2 animate-spin" size={16} />}
       </Button>

@@ -8,6 +8,14 @@ export async function resolveHandle(_: string | undefined, formData: FormData) {
   if (typeof handle !== "string") return;
 
   handle = handle.trim();
+
+  if (handle === "") return "Please enter a handle.";
+
+  if (handle.startsWith('https://bsky.app/profile/')) {
+    handle = handle.replace('https://bsky.app/profile/', '');
+    if (handle.endsWith('/')) handle = handle.slice(0, -1);
+  }
+
   if (handle.startsWith("did:")) {
     if (handle.startsWith("did:plc:")) {
       redirect(`/did/${handle}`);
