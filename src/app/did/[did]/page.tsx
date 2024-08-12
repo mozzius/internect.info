@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 import { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -109,10 +110,12 @@ export default async function InfoScreen({ params: { did } }: Props) {
         className="mt-8 flex w-full items-center gap-4 rounded-md border border-slate-200 bg-white px-4 py-3 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
         href={`https://bsky.app/profile/${did}`}
       >
-        <img
-          src={profile.data.avatar}
+        <Image
+          src={profile.data.avatar?.replace("avatar", "avatar_thumbnail") ?? ""}
           alt={profile.data.displayName ?? profile.data.handle}
-          className="h-14 w-14 rounded-full"
+          className="size-14 rounded-full bg-slate-100 text-transparent"
+          width={128}
+          height={128}
         />
         <div>
           <p className="text-xl font-semibold">

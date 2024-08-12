@@ -7,6 +7,7 @@ import { cn } from "~/lib/utils";
 import "./globals.css";
 
 import { Toaster } from "~/components/ui/sonner";
+import { Providers } from "./providers";
 
 const font = Open_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -30,7 +31,7 @@ export default function RootLayout({
           font.variable,
         )}
       >
-        {children}
+        <Providers>{children}</Providers>
         <Toaster />
         <Analytics />
       </body>
