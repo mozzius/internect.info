@@ -29,14 +29,21 @@ export const generateMetadata = async ({
   did = decodeURIComponent(did);
   const agent = getAgent();
 
-  const profile = await agent.getProfile({ actor: did });
+  try {
+    const profile = await agent.getProfile({ actor: did });
 
-  return {
-    title: `@${profile.data.handle} - internect.info`,
-    description: `Information about ${
-      profile.data.displayName || `@${profile.data.handle}`
-    }`,
-  };
+    return {
+      title: `@${profile.data.handle} - internect.info`,
+      description: `Information about ${
+        profile.data.displayName || `@${profile.data.handle}`
+      }`,
+    };
+  } catch {
+    return {
+      title: `@${did} - internect.info`,
+      description: `Information about @${did}`,
+    };
+  }
 };
 
 export default async function InfoScreen({ params: { did } }: Props) {
