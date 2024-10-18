@@ -1,7 +1,7 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
@@ -84,15 +84,13 @@ const Fields = () => {
                     key={profile.did}
                     className="flex cursor-pointer items-center gap-2 rounded-md p-2 hover:bg-slate-100"
                   >
-                    <Image
-                      src={
-                        profile.avatar?.replace("avatar", "avatar_thumbnail") ??
-                        ""
-                      }
+                    <img
+                      src={profile.avatar?.replace(
+                        "avatar",
+                        "avatar_thumbnail",
+                      )}
                       alt={profile.handle}
                       className="size-6 rounded-full bg-slate-50 text-transparent"
-                      width={128}
-                      height={128}
                     />
                     <p className="line-clamp-1 text-sm">@{profile.handle}</p>
                   </Link>

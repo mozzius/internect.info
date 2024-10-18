@@ -1,13 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 import { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  AtSign,
   AtSignIcon,
   CakeIcon,
-  CalendarIcon,
   DatabaseIcon,
   ExternalLinkIcon,
   UserIcon,
@@ -125,14 +122,10 @@ export default async function InfoScreen({ params: { did } }: Props) {
           </p>
         ) : (
           <>
-            <Image
-              src={
-                profile.data.avatar?.replace("avatar", "avatar_thumbnail") ?? ""
-              }
+            <img
+              src={profile.data.avatar?.replace("avatar", "avatar_thumbnail")}
               alt={profile.data.displayName || profile.data.handle}
               className="size-14 rounded-full bg-slate-100 text-transparent"
-              width={128}
-              height={128}
             />
             <div>
               <p className="text-xl font-semibold">
