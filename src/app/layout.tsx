@@ -16,6 +16,7 @@ export const metadata: Metadata = {
   description:
     "Find technical information about a Bluesky account from its handle or DID.",
   metadataBase: new URL("https://internect.info"),
+  other: { "google-adsense-account": "ca-pub-6921696462479931" },
 };
 
 export default function RootLayout({
