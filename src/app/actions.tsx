@@ -17,10 +17,10 @@ export async function resolveHandle(_: string | undefined, formData: FormData) {
   }
 
   if (handle.startsWith("did:")) {
-    if (handle.startsWith("did:plc:")) {
+    if (handle.startsWith("did:plc:") || handle.startsWith("did:web:")) {
       redirect(`/did/${handle}`);
     } else {
-      return "Non-PLC DIDs are not supported by this tool.";
+      return "Only PLC & web DIDs are currently supported by this tool.";
     }
   } else {
     if (handle.startsWith("@")) handle = handle.slice(1);
@@ -31,10 +31,10 @@ export async function resolveHandle(_: string | undefined, formData: FormData) {
     });
 
     if (res.success) {
-      if (res.data.did.startsWith("did:plc:")) {
+      if (res.data.did.startsWith("did:plc:") || res.data.did.startsWith("did:web:")) {
         redirect(`/did/${res.data.did}`);
       } else {
-        return "Non-PLC DIDs are not supported by this tool.";
+        return "Only PLC & web DIDs are currently supported by this tool.";
       }
     } else {
       return "Handle not found. Are you sure it's correct?";
