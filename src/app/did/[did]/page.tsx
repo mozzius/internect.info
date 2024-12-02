@@ -20,6 +20,19 @@ interface Props {
   params: { did: string };
 }
 
+type DidDocument = {
+  "@context": string[];
+  id: string;
+  alsoKnownAs?: string[];
+  verificationMethod?: {
+    id: string;
+    type: string;
+    controller: string;
+    publicKeyMultibase?: string;
+  }[];
+  service?: { id: string; type: string; serviceEndpoint: string }[];
+}
+
 export const generateMetadata = async ({
   params: { did },
 }: Props): Promise<Metadata> => {
@@ -51,24 +64,28 @@ export default async function InfoScreen({ params: { did } }: Props) {
 
   const agent = getAgent();
 
-  const doc = (await fetch(`https://plc.directory/${did}`, {
-    cache: "no-store",
-  }).then((res) => res.json())) as {
-    "@context": string[];
-    id: string;
-    alsoKnownAs?: string[];
-    verificationMethod?: {
-      id: string;
-      type: string;
-      controller: string;
-      publicKeyMultibase?: string;
-    }[];
-    service?: { id: string; type: string; serviceEndpoint: string }[];
-  };
+  let doc: DidDocument, audit: AuditRecord[], didDomain: string | null;
+  if (did.startsWith('did:plc:')) {
+    didDomain = null;
 
-  const audit = (await fetch(`https://plc.directory/${did}/log/audit`, {
-    cache: "no-store",
-  }).then((res) => res.json())) as AuditRecord[];
+    doc = (await fetch(`https://plc.directory/${did}`, {
+      cache: "no-store",
+    }).then((res) => res.json())) as DidDocument;
+
+    audit = (await fetch(`https://plc.directory/${did}/log/audit`, {
+      cache: "no-store",
+    }).then((res) => res.json())) as AuditRecord[];
+  } else if (did.startsWith('did:web:')) {
+    didDomain = did.split(':', 3)[2];
+
+    doc = (await fetch(`https://${didDomain}/.well-known/did.json`, {
+      cache: 'no-store',
+    }).then((res) => res.json())) as DidDocument;
+
+    audit = [];
+  } else {
+    throw Error('unsupported DID method');
+  }
 
   const profile = await agent.getProfile({ actor: did }).catch((err) => {
     if (err instanceof Error && err.message.includes("deactivated")) {
@@ -156,8 +173,11 @@ export default async function InfoScreen({ params: { did } }: Props) {
             />
             Names and aliases:
           </span>{" "}
-          {doc.alsoKnownAs?.join(", ") ?? "None"} -{" "}
-          <HistoryDialog log={audit} />
+          {doc.alsoKnownAs?.join(", ") ?? "None"}
+          {did.startsWith("did:plc:") && <>
+            {" - "}
+            <HistoryDialog log={audit} />
+          </>}
         </p>
 
         <p className="text-sm">
@@ -168,7 +188,11 @@ export default async function InfoScreen({ params: { did } }: Props) {
             />
             First appearance:
           </span>{" "}
-          <DateTime date={new Date(audit[0].createdAt)} />
+          {did.startsWith('did:plc:') &&
+            <DateTime
+              date={new Date(audit[0].createdAt)}
+            />}
+          {did.startsWith('did:web:') && <>Unavailable for web DIDs</>}
         </p>
 
         <p className="text-sm">
@@ -186,12 +210,22 @@ export default async function InfoScreen({ params: { did } }: Props) {
         <Link href="/">
           <Button variant="link">Back</Button>
         </Link>
-        <Link href={`https://web.plc.directory/did/${did}`}>
-          <Button variant="outline">
-            View on plc.directory
-            <ExternalLinkIcon className="ml-2 inline-block" size={14} />
-          </Button>
-        </Link>
+        {did.startsWith('did:plc:') &&
+          <Link href={`https://web.plc.directory/did/${did}`}>
+            <Button variant="outline">
+              View on plc.directory
+              <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+            </Button>
+          </Link>
+        }
+        {did.startsWith('did:web:') &&
+          <Link href={`https://${didDomain}/.well-known/did.json`}>
+            <Button variant="outline">
+              View DID document
+              <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+            </Button>
+          </Link>
+        }
       </div>
     </main>
   );
