@@ -15,7 +15,7 @@ export default async function Home({
   return (
     <div className="flex min-h-screen flex-col">
       <main className="flex flex-1 items-center justify-center">
-        <div className="container flex flex-col items-center justify-center px-4 py-16 md:py-24 lg:py-32">
+        <div className="noise container flex flex-col items-center justify-center px-4 py-16 md:py-24 lg:py-32">
           <div className="mb-4 flex items-center space-x-2">
             <AtSignIcon className="size-8 text-blue-500" />
             <h1 className="text-xl font-medium">internect.info</h1>
