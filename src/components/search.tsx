@@ -87,7 +87,7 @@ export function Search({ error: initialError }: Props) {
           type="submit"
           className="absolute top-0 right-0 h-12 rounded-l-none px-6"
         >
-          Resolve
+          Explore
         </Button>
       </div>
       {error ? (
