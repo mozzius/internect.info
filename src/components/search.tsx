@@ -94,7 +94,7 @@ export function Search({ error: initialError }: Props) {
         <div className="text-destructive-foreground mt-2 text-xs">{error}</div>
       ) : (
         <div className="text-muted-foreground mt-2 text-xs">
-          Try searching for a handle, DID, or URL
+          Try searching for a handle, DID, or AT URI.
         </div>
       )}
     </form>
