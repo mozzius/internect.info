@@ -20,7 +20,7 @@ export const DateTime = ({
         minute: "2-digit",
         timeZoneName: "short",
       }),
-    []
+    [],
   );
   return (
     <time

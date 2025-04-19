@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 
 import { Button } from "~/components/ui/button";
-import { getAgent } from "~/lib/agent";
+import { agent } from "~/lib/agent";
 import { CopyableText } from "./copyable-text";
 import { DateTime } from "./datetime";
 import { AuditRecord, HistoryDialog } from "./history";
 
 interface Props {
-  params: { did: string };
+  params: Promise<{ did: string }>;
 }
 
 type DidDocument = {
@@ -31,13 +31,13 @@ type DidDocument = {
     publicKeyMultibase?: string;
   }[];
   service?: { id: string; type: string; serviceEndpoint: string }[];
-}
+};
 
 export const generateMetadata = async ({
-  params: { did },
+  params,
 }: Props): Promise<Metadata> => {
+  let { did } = await params;
   did = decodeURIComponent(did);
-  const agent = getAgent();
 
   try {
     const profile = await agent.getProfile({ actor: did });
@@ -56,16 +56,15 @@ export const generateMetadata = async ({
   }
 };
 
-export default async function InfoScreen({ params: { did } }: Props) {
+export default async function InfoScreen({ params }: Props) {
+  let { did } = await params;
   did = decodeURIComponent(did);
   if (!did.startsWith("did:")) {
-    redirect(`/did/${encodeURIComponent(`${did} is an invalid DID`)}`);
+    redirect(`/?error=${encodeURIComponent(`${did} is an invalid DID`)}`);
   }
 
-  const agent = getAgent();
-
   let doc: DidDocument, audit: AuditRecord[], didDomain: string | null;
-  if (did.startsWith('did:plc:')) {
+  if (did.startsWith("did:plc:")) {
     didDomain = null;
 
     doc = (await fetch(`https://plc.directory/${did}`, {
@@ -75,16 +74,16 @@ export default async function InfoScreen({ params: { did } }: Props) {
     audit = (await fetch(`https://plc.directory/${did}/log/audit`, {
       cache: "no-store",
     }).then((res) => res.json())) as AuditRecord[];
-  } else if (did.startsWith('did:web:')) {
-    didDomain = did.split(':', 3)[2];
+  } else if (did.startsWith("did:web:")) {
+    didDomain = did.split(":", 3)[2];
 
     doc = (await fetch(`https://${didDomain}/.well-known/did.json`, {
-      cache: 'no-store',
+      cache: "no-store",
     }).then((res) => res.json())) as DidDocument;
 
     audit = [];
   } else {
-    throw Error('unsupported DID method');
+    throw Error("unsupported DID method");
   }
 
   const profile = await agent.getProfile({ actor: did }).catch((err) => {
@@ -122,7 +121,7 @@ export default async function InfoScreen({ params: { did } }: Props) {
           {serviceEndpoint}
         </h1>
         {pds && (
-          <p className="mx-auto mt-2 max-w-max rounded-sm border bg-neutral-50 px-2 py-px">
+          <p className="mx-auto mt-2 max-w-max rounded-xs border bg-neutral-50 px-2 py-px">
             {isBskyHost
               ? "still in the mycosphere..."
               : "internecting in the ATmosphere!"}
@@ -174,10 +173,12 @@ export default async function InfoScreen({ params: { did } }: Props) {
             Names and aliases:
           </span>{" "}
           {doc.alsoKnownAs?.join(", ") ?? "None"}
-          {did.startsWith("did:plc:") && <>
-            {" - "}
-            <HistoryDialog log={audit} />
-          </>}
+          {did.startsWith("did:plc:") && (
+            <>
+              {" - "}
+              <HistoryDialog log={audit} />
+            </>
+          )}
         </p>
 
         <p className="text-sm">
@@ -188,11 +189,10 @@ export default async function InfoScreen({ params: { did } }: Props) {
             />
             First appearance:
           </span>{" "}
-          {did.startsWith('did:plc:') &&
-            <DateTime
-              date={new Date(audit[0].createdAt)}
-            />}
-          {did.startsWith('did:web:') && <>Unavailable for web DIDs</>}
+          {did.startsWith("did:plc:") && (
+            <DateTime date={new Date(audit[0].createdAt)} />
+          )}
+          {did.startsWith("did:web:") && <>Unavailable for web DIDs</>}
         </p>
 
         <p className="text-sm">
@@ -210,22 +210,22 @@ export default async function InfoScreen({ params: { did } }: Props) {
         <Link href="/">
           <Button variant="link">Back</Button>
         </Link>
-        {did.startsWith('did:plc:') &&
+        {did.startsWith("did:plc:") && (
           <Link href={`https://web.plc.directory/did/${did}`}>
             <Button variant="outline">
               View on plc.directory
               <ExternalLinkIcon className="ml-2 inline-block" size={14} />
             </Button>
           </Link>
-        }
-        {did.startsWith('did:web:') &&
+        )}
+        {did.startsWith("did:web:") && (
           <Link href={`https://${didDomain}/.well-known/did.json`}>
             <Button variant="outline">
               View DID document
               <ExternalLinkIcon className="ml-2 inline-block" size={14} />
             </Button>
           </Link>
-        }
+        )}
       </div>
     </main>
   );

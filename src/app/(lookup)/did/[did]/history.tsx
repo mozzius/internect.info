@@ -50,12 +50,12 @@ export const HistoryDialog = ({ log }: { log: AuditRecord[] }) => {
         <DialogHeader>
           <DialogTitle>Audit log</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="w-full max-h-96">
+        <ScrollArea className="max-h-96 w-full">
           {log.map((record) => (
             <div
               className={cn(
-                "p-1 border-b last:border-b-0",
-                record.nullified && "bg-red-100"
+                "border-b p-1 last:border-b-0",
+                record.nullified && "bg-red-100",
               )}
               key={record.cid}
             >
