@@ -1,7 +1,6 @@
 import { AtSignIcon } from "lucide-react";
 
 import { AnimatedBlob } from "~/components/animated-blob";
-import { ExampleCard } from "~/components/example-card";
 import { Footer } from "~/components/footer";
 import { Search } from "~/components/search";
 
