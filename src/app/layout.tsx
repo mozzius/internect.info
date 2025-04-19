@@ -12,7 +12,7 @@ import { Providers } from "./providers";
 const font = Open_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "internect.info - Resolve a Bluesky handle",
+  title: "internect.info — Explore the ATmosphere",
   description:
     "Find technical information about a Bluesky account from its handle or DID.",
   metadataBase: new URL("https://internect.info"),
