@@ -131,6 +131,9 @@ export function Search({ error: initialError }: Props) {
                 handleSearch(query);
               }
             }}
+            autoFocus
+            autoCapitalize="off"
+            autoComplete="off"
           />
           <Button
             ref={buttonRef}
