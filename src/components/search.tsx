@@ -134,7 +134,7 @@ export function Search({ error: initialError }: Props) {
           />
           <Button
             ref={buttonRef}
-            className="absolute top-0 right-0 h-12 rounded-l-none rounded-r-lg px-6"
+            className="absolute top-0 right-0 h-full rounded-l-none rounded-r-lg px-6"
             onClick={() => handleSearch(query)}
           >
             Explore
