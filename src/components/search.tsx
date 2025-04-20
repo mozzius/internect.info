@@ -132,7 +132,7 @@ export function Search({ error: initialError }: Props) {
               }
             }}
             autoFocus
-            autoCapitalize="off"
+            autoCapitalize="none"
             autoComplete="off"
           />
           <Button
