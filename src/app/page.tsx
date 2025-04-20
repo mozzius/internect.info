@@ -37,7 +37,7 @@ export default async function Home({
             <Search error={error} />
           </div>
 
-          <p className="text-muted-foreground mt-16 text-xs">
+          <p className="text-muted-foreground mt-16 px-12 text-center text-xs">
             <sup>*</sup>and by anything, I just mean looking up handles. More
             stuff soon!
           </p>
