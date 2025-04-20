@@ -46,11 +46,11 @@ export type AuditRecord = {
 export const HistoryDialog = ({ log }: { log: AuditRecord[] }) => {
   return (
     <Dialog>
-      <DialogTrigger className="underline" asChild>
+      <DialogTrigger asChild>
         <Button
           variant="link"
           size="sm"
-          className="h-auto p-0 pl-2 text-xs text-blue-500"
+          className="ml-auto h-auto text-sm text-blue-500"
         >
           View history
         </Button>
@@ -59,16 +59,16 @@ export const HistoryDialog = ({ log }: { log: AuditRecord[] }) => {
         <DialogHeader>
           <DialogTitle>Audit log</DialogTitle>
         </DialogHeader>
-        <ScrollArea className="max-h-96 w-full">
+        <ScrollArea className="max-h-[500px] w-full overflow-hidden">
           {log.map((record) => (
             <div
+              key={record.cid}
               className={cn(
-                "border-b p-1 last:border-b-0",
+                "line-clamp-1 w-full border-b p-1 break-all last:border-b-0",
                 record.nullified && "bg-red-100",
               )}
-              key={record.cid}
             >
-              <p className="font-medium">
+              <p className="line-clamp-1 font-medium">
                 {(() => {
                   switch (record.operation.type) {
                     case "create":
@@ -86,7 +86,7 @@ export const HistoryDialog = ({ log }: { log: AuditRecord[] }) => {
               </p>
               <DateTime
                 date={new Date(record.createdAt)}
-                className="text-sm text-slate-500"
+                className="line-clamp-1 text-sm text-slate-500"
               />
             </div>
           ))}

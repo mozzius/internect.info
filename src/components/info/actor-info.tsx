@@ -25,14 +25,8 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { agent } from "~/lib/agent";
-import { CopyableText } from "./copyable-text";
+import { CopyButton } from "./copy-button";
 import { DateTime } from "./datetime";
 import { AuditRecord, HistoryDialog } from "./history";
 
@@ -90,7 +84,7 @@ export async function ActorInfo({ did }: { did: string }) {
   );
 
   const serviceEndpoint = pds?.serviceEndpoint ?? "???";
-  let pdsName = serviceEndpoint;
+  let pdsName = serviceEndpoint.replace("https://", "");
 
   let isBskyHost = false;
 
@@ -160,19 +154,7 @@ export async function ActorInfo({ did }: { did: string }) {
               <div className="bg-muted/30 rounded-md p-3">
                 <div className="flex items-center justify-between">
                   <code className="text-sm">{serviceEndpoint}</code>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Copy className="size-4" />
-                          <span className="sr-only">Copy URL</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Copy URL</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <CopyButton text={serviceEndpoint} tooltip="Copy PDS URL" />
                 </div>
               </div>
             </div>
@@ -222,19 +204,7 @@ export async function ActorInfo({ did }: { did: string }) {
                 </div>
                 <div className="bg-muted/30 flex items-center justify-between rounded-md p-3">
                   <code className="text-xs sm:text-sm">{did}</code>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <Copy className="size-4" />
-                          <span className="sr-only">Copy DID</span>
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Copy DID</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <CopyButton text={did} tooltip="Copy DID" />
                 </div>
               </div>
 
@@ -242,13 +212,19 @@ export async function ActorInfo({ did }: { did: string }) {
                 <div className="text-muted-foreground flex items-center text-sm">
                   <AtSignIcon className="mr-2 size-4" />
                   <span>Names and aliases</span>
+                  <HistoryDialog log={audit} />
                 </div>
                 <div className="bg-muted/30 flex items-center justify-between rounded-md p-3">
-                  <div className="flex items-center">
-                    <code className="text-xs sm:text-sm">
-                      {doc.alsoKnownAs?.join(", ") ?? "None"}
-                    </code>
-                    <HistoryDialog log={audit} />
+                  <div className="flex flex-1 flex-col gap-1">
+                    {doc.alsoKnownAs ? (
+                      doc.alsoKnownAs.map((name) => (
+                        <code key={name} className="text-xs sm:text-sm">
+                          {name}
+                        </code>
+                      ))
+                    ) : (
+                      <span className="text-xs italic sm:text-sm">None</span>
+                    )}
                   </div>
                 </div>
               </div>
