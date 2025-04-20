@@ -1,3 +1,4 @@
+import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -45,7 +46,15 @@ export type AuditRecord = {
 export const HistoryDialog = ({ log }: { log: AuditRecord[] }) => {
   return (
     <Dialog>
-      <DialogTrigger className="underline">View history</DialogTrigger>
+      <DialogTrigger className="underline" asChild>
+        <Button
+          variant="link"
+          size="sm"
+          className="h-auto p-0 pl-2 text-xs text-blue-500"
+        >
+          View history
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Audit log</DialogTitle>

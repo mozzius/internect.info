@@ -1,16 +1,36 @@
 /* eslint-disable @next/next/no-img-element */
-import { Metadata } from "next";
+
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
+  ArrowLeft,
   AtSignIcon,
-  CakeIcon,
-  DatabaseIcon,
+  Calendar,
+  Copy,
   ExternalLinkIcon,
-  UserIcon,
+  MouseIcon as Mushroom,
+  SearchIcon,
+  ServerIcon,
+  User,
 } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { agent } from "~/lib/agent";
 import { CopyableText } from "./copyable-text";
 import { DateTime } from "./datetime";
@@ -69,7 +89,8 @@ export async function ActorInfo({ did }: { did: string }) {
     (s) => s.type === "AtprotoPersonalDataServer",
   );
 
-  let serviceEndpoint = pds?.serviceEndpoint ?? "???";
+  const serviceEndpoint = pds?.serviceEndpoint ?? "???";
+  let pdsName = serviceEndpoint;
 
   let isBskyHost = false;
 
@@ -79,124 +100,203 @@ export async function ActorInfo({ did }: { did: string }) {
       .replace("https://", "")
       .split(".")
       .shift()!;
-    serviceEndpoint = `🍄 ${mushroom[0].toLocaleUpperCase()}${mushroom.slice(
-      1,
-    )}`;
+    pdsName = `${mushroom[0].toLocaleUpperCase()}${mushroom.slice(1)}`;
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-4xl flex-col items-center justify-center gap-4 p-4 lg:p-24">
-      <div className="flex w-full flex-col gap-2 text-center">
-        <p>Personal Data Server:</p>
-        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight">
-          {serviceEndpoint}
-        </h1>
-        {pds && (
-          <p className="mx-auto mt-2 max-w-max rounded-xs border bg-neutral-50 px-2 py-px">
-            {isBskyHost
-              ? "still in the mycosphere..."
-              : "internecting in the ATmosphere!"}
-          </p>
-        )}
-      </div>
-      <Link
-        className="mt-8 flex w-full items-center gap-4 rounded-md border border-slate-200 bg-white px-4 py-3 hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-950 dark:hover:bg-slate-800 dark:hover:text-slate-50"
-        href={`https://bsky.app/profile/${did}`}
-      >
-        {profile === "DEACTIVATED" ? (
-          <p className="w-full text-center text-lg font-semibold">
-            This account has been deactivated
-          </p>
-        ) : (
-          <>
-            <img
-              src={profile.data.avatar?.replace("avatar", "avatar_thumbnail")}
-              alt={profile.data.displayName || profile.data.handle}
-              className="size-14 rounded-full bg-slate-100 text-transparent"
-            />
-            <div>
-              <p className="text-xl font-semibold">
-                {profile.data.displayName || profile.data.handle}
-              </p>
-              <p className="text-sm text-gray-500">@{profile.data.handle}</p>
-            </div>
-          </>
-        )}
-      </Link>
-      <div className="flex w-full flex-col gap-2 rounded-md border border-slate-200 bg-white px-4 py-3 dark:border-slate-800 dark:bg-slate-950">
-        <p className="text-sm">
-          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
-            <UserIcon
-              className="absolute left-0 inline-block text-gray-500"
-              size={14}
-            />
-            DID:
-          </span>{" "}
-          <CopyableText text={did} />
-        </p>
-
-        <p className="text-sm">
-          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
-            <AtSignIcon
-              className="absolute left-0 inline-block text-gray-500"
-              size={14}
-            />
-            Names and aliases:
-          </span>{" "}
-          {doc.alsoKnownAs?.join(", ") ?? "None"}
-          {did.startsWith("did:plc:") && (
-            <>
-              {" - "}
-              <HistoryDialog log={audit} />
-            </>
-          )}
-        </p>
-
-        <p className="text-sm">
-          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
-            <CakeIcon
-              className="absolute left-0 inline-block text-gray-500"
-              size={14}
-            />
-            First appearance:
-          </span>{" "}
-          {did.startsWith("did:plc:") && (
-            <DateTime date={new Date(audit[0].createdAt)} />
-          )}
-          {did.startsWith("did:web:") && <>Unavailable for web DIDs</>}
-        </p>
-
-        <p className="text-sm">
-          <span className="relative flex items-center gap-2 pl-5 text-gray-500 md:inline-flex">
-            <DatabaseIcon
-              className="absolute left-0 inline-block text-gray-500"
-              size={14}
-            />
-            Personal Data Server:
-          </span>{" "}
-          {pds ? pds.serviceEndpoint : "Not specified"}
-        </p>
-      </div>
-      <div className="flex w-full justify-between">
-        <Link href="/">
-          <Button variant="link">Back</Button>
+    <div className="container max-w-4xl px-4 py-8 md:py-12">
+      <div className="mb-8 flex items-center justify-between">
+        <Link href="/" className="flex items-center space-x-2">
+          <AtSignIcon className="h-6 w-6 text-blue-500" />
+          <span className="text-lg font-medium">internect.info</span>
         </Link>
-        {did.startsWith("did:plc:") && (
-          <Link href={`https://web.plc.directory/did/${did}`}>
-            <Button variant="outline">
-              View on plc.directory
-              <ExternalLinkIcon className="ml-2 inline-block" size={14} />
-            </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/">
+            <SearchIcon className="mr-2 size-4" />
+            Back to search
           </Link>
-        )}
-        {did.startsWith("did:web:") && (
-          <Link href={`https://${didDomain}/.well-known/did.json`}>
-            <Button variant="outline">
-              View DID document
-              <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+        </Button>
+      </div>
+
+      <div className="grid gap-6">
+        {/* PDS Card */}
+        <Card className="overflow-hidden pt-0">
+          <CardHeader className="bg-muted/30 pt-6 pb-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-2xl">
+                  {isBskyHost ? (
+                    "🍄"
+                  ) : (
+                    <ServerIcon className="text-muted-foreground size-5" />
+                  )}
+                </div>
+                <div>
+                  <CardTitle className="text-xl">
+                    Personal Data Server
+                  </CardTitle>
+                  <CardDescription>Host information</CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" className="flex items-center gap-1">
+                <Mushroom className="size-3" />
+                <span>PDS</span>
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center space-x-2">
+                  <h3 className="text-2xl font-bold">{pdsName}</h3>
+                </div>
+                <Badge variant="secondary" className="mt-2 w-fit sm:mt-0">
+                  {isBskyHost
+                    ? "still in the mycosphere..."
+                    : "internecting in the ATmosphere!"}
+                </Badge>
+              </div>
+
+              <div className="bg-muted/30 rounded-md p-3">
+                <div className="flex items-center justify-between">
+                  <code className="text-sm">{serviceEndpoint}</code>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Copy className="size-4" />
+                          <span className="sr-only">Copy URL</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy URL</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* User Card */}
+        <Card className="overflow-hidden py-0">
+          <CardHeader className="bg-muted/30 pt-6 pb-4">
+            {profile === "DEACTIVATED" ? (
+              <CardTitle className="text-2xl">
+                This account has been deactivated
+              </CardTitle>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Avatar className="size-10 outline-1 outline-neutral-200">
+                  <AvatarImage
+                    src={profile.data.avatar?.replace(
+                      "/img/avatar/plain/",
+                      "/img/avatar_thumbnail/plain/",
+                    )}
+                  />
+                  <AvatarFallback>
+                    {(profile.data.displayName || profile.data.handle)
+                      .split(" ")
+                      .map((word) => word.charAt(0))
+                      .slice(0, 2)
+                      .join("")
+                      .toLocaleUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <CardTitle className="text-xl">
+                    {profile.data.displayName || profile.data.handle}
+                  </CardTitle>
+                  <CardDescription>@{profile.data.handle}</CardDescription>
+                </div>
+              </div>
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="grid gap-2">
+                <div className="text-muted-foreground flex items-center text-sm">
+                  <User className="mr-2 size-4" />
+                  <span>DID</span>
+                </div>
+                <div className="bg-muted/30 flex items-center justify-between rounded-md p-3">
+                  <code className="text-xs sm:text-sm">{did}</code>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Copy className="size-4" />
+                          <span className="sr-only">Copy DID</span>
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Copy DID</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <div className="text-muted-foreground flex items-center text-sm">
+                  <AtSignIcon className="mr-2 size-4" />
+                  <span>Names and aliases</span>
+                </div>
+                <div className="bg-muted/30 flex items-center justify-between rounded-md p-3">
+                  <div className="flex items-center">
+                    <code className="text-xs sm:text-sm">
+                      {doc.alsoKnownAs?.join(", ") ?? "None"}
+                    </code>
+                    <HistoryDialog log={audit} />
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <div className="text-muted-foreground flex items-center text-sm">
+                  <Calendar className="mr-2 size-4" />
+                  <span>First appearance</span>
+                </div>
+                <div className="bg-muted/30 rounded-md p-3">
+                  <span className="text-sm">
+                    {" "}
+                    {did.startsWith("did:plc:") && (
+                      <DateTime date={new Date(audit[0].createdAt)} />
+                    )}
+                    {did.startsWith("did:web:") && (
+                      <>Unavailable for web DIDs</>
+                    )}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+          <CardFooter className="bg-muted/30 flex justify-between border-t px-6 pt-4 pb-6">
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/">
+                <ArrowLeft className="mr-2 size-4" />
+                Back
+              </Link>
             </Button>
-          </Link>
-        )}
+            {did.startsWith("did:plc:") && (
+              <Link href={`https://web.plc.directory/did/${did}`}>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <span>View on plc.directory</span>
+                  <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+                </Button>
+              </Link>
+            )}
+            {did.startsWith("did:web:") && (
+              <Link href={`https://${didDomain}/.well-known/did.json`}>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <span>View DID document</span>
+                  <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+                </Button>
+              </Link>
+            )}
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );
