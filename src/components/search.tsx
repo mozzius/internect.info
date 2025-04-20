@@ -118,7 +118,7 @@ export function Search({ error: initialError }: Props) {
           <SearchIcon className="text-muted-foreground pointer-events-none absolute left-3 size-4" />
           <CommandPrimitive.Input
             placeholder="alice.bsky.social"
-            className="h-12 w-full border-0 bg-transparent pr-24 pl-10 text-sm outline-none focus:outline-none focus-visible:ring-0"
+            className="h-12 w-full border-0 bg-transparent pr-24 pl-10 outline-none focus:outline-none focus-visible:ring-0 lg:text-sm"
             value={query}
             onValueChange={(value) => {
               setError("");
