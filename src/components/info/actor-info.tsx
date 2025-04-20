@@ -2,16 +2,14 @@
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { SiBluesky as BlueskyIcon } from "@icons-pack/react-simple-icons";
+import { Code } from "bright";
 import {
-  ArrowLeft,
   AtSignIcon,
-  Calendar,
-  Copy,
+  CalendarIcon,
+  CircleUserRound,
   ExternalLinkIcon,
-  MouseIcon as Mushroom,
-  SearchIcon,
   ServerIcon,
-  User,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -26,6 +24,14 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { agent } from "~/lib/agent";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { CopyButton } from "./copy-button";
 import { DateTime } from "./datetime";
 import { AuditRecord, HistoryDialog } from "./history";
@@ -84,196 +90,178 @@ export async function ActorInfo({ did }: { did: string }) {
   );
 
   const serviceEndpoint = pds?.serviceEndpoint ?? "???";
-  let pdsName = serviceEndpoint.replace("https://", "");
 
   let isBskyHost = false;
 
   if (pds?.serviceEndpoint.endsWith("host.bsky.network")) {
     isBskyHost = true;
-    const mushroom = serviceEndpoint
-      .replace("https://", "")
-      .split(".")
-      .shift()!;
-    pdsName = `${mushroom[0].toLocaleUpperCase()}${mushroom.slice(1)}`;
   }
 
   return (
-    <div className="container max-w-4xl px-4 py-8 md:py-12">
-      <div className="mb-8 flex items-center justify-between">
-        <Link href="/" className="flex items-center space-x-2">
-          <AtSignIcon className="h-6 w-6 text-blue-500" />
-          <span className="text-lg font-medium">internect.info</span>
-        </Link>
-        <Button variant="outline" size="sm" asChild>
-          <Link href="/">
-            <SearchIcon className="mr-2 size-4" />
-            Back to search
-          </Link>
-        </Button>
-      </div>
-
-      <div className="grid gap-6">
-        {/* PDS Card */}
-        <Card className="overflow-hidden pt-0">
-          <CardHeader className="bg-muted/30 pt-6 pb-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-2xl">
-                  {isBskyHost ? (
-                    "🍄"
-                  ) : (
-                    <ServerIcon className="text-muted-foreground size-5" />
+    <div className="grid gap-6">
+      {/* User Card */}
+      <Card className="pb-0">
+        <CardHeader>
+          {profile === "DEACTIVATED" ? (
+            <CardTitle className="text-2xl">
+              This account has been deactivated
+            </CardTitle>
+          ) : (
+            <div className="flex items-center gap-3">
+              <Avatar className="size-10 outline-1 outline-neutral-200">
+                <AvatarImage
+                  src={profile.data.avatar?.replace(
+                    "/img/avatar/plain/",
+                    "/img/avatar_thumbnail/plain/",
                   )}
-                </div>
-                <div>
-                  <CardTitle className="text-xl">
-                    Personal Data Server
-                  </CardTitle>
-                  <CardDescription>Host information</CardDescription>
-                </div>
+                />
+                <AvatarFallback>
+                  {(profile.data.displayName || profile.data.handle)
+                    .split(" ")
+                    .map((word) => word.charAt(0))
+                    .slice(0, 2)
+                    .join("")
+                    .toLocaleUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <CardTitle className="text-xl">
+                  {profile.data.displayName || profile.data.handle}
+                </CardTitle>
+                <CardDescription>@{profile.data.handle}</CardDescription>
               </div>
-              <Badge variant="outline" className="flex items-center gap-1">
-                <Mushroom className="size-3" />
-                <span>PDS</span>
+              <Badge
+                variant="outline"
+                className="ml-auto flex items-center gap-1.5"
+              >
+                <BlueskyIcon className="size-3" />
+                <span>Bluesky</span>
               </Badge>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-2xl font-bold">{pdsName}</h3>
-                </div>
-                <Badge variant="secondary" className="mt-2 w-fit sm:mt-0">
-                  {isBskyHost
-                    ? "still in the mycosphere..."
-                    : "internecting in the ATmosphere!"}
-                </Badge>
+          )}
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid gap-2">
+              <div className="text-muted-foreground flex items-center text-sm">
+                <CircleUserRound className="mr-2 size-4" />
+                <span>DID</span>
               </div>
+              <div className="bg-muted/60 flex items-center justify-between rounded-md p-3">
+                <code className="text-xs sm:text-sm">{did}</code>
+                <CopyButton text={did} tooltip="Copy DID" />
+              </div>
+            </div>
 
-              <div className="bg-muted/30 rounded-md p-3">
-                <div className="flex items-center justify-between">
-                  <code className="text-sm">{serviceEndpoint}</code>
-                  <CopyButton text={serviceEndpoint} tooltip="Copy PDS URL" />
+            <div className="grid gap-2">
+              <div className="text-muted-foreground flex items-center text-sm">
+                <AtSignIcon className="mr-2 size-4" />
+                <span>Names and aliases</span>
+                <HistoryDialog log={audit} />
+              </div>
+              <div className="bg-muted/60 flex items-center justify-between rounded-md p-3">
+                <div className="flex flex-1 flex-col gap-1">
+                  {doc.alsoKnownAs ? (
+                    doc.alsoKnownAs.map((name) => (
+                      <code key={name} className="text-xs sm:text-sm">
+                        {name}
+                      </code>
+                    ))
+                  ) : (
+                    <span className="text-xs italic sm:text-sm">None</span>
+                  )}
                 </div>
               </div>
             </div>
-          </CardContent>
-        </Card>
 
-        {/* User Card */}
-        <Card className="overflow-hidden py-0">
-          <CardHeader className="bg-muted/30 pt-6 pb-4">
-            {profile === "DEACTIVATED" ? (
-              <CardTitle className="text-2xl">
-                This account has been deactivated
-              </CardTitle>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Avatar className="size-10 outline-1 outline-neutral-200">
-                  <AvatarImage
-                    src={profile.data.avatar?.replace(
-                      "/img/avatar/plain/",
-                      "/img/avatar_thumbnail/plain/",
-                    )}
-                  />
-                  <AvatarFallback>
-                    {(profile.data.displayName || profile.data.handle)
-                      .split(" ")
-                      .map((word) => word.charAt(0))
-                      .slice(0, 2)
-                      .join("")
-                      .toLocaleUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <CardTitle className="text-xl">
-                    {profile.data.displayName || profile.data.handle}
-                  </CardTitle>
-                  <CardDescription>@{profile.data.handle}</CardDescription>
-                </div>
+            <div className="grid gap-2">
+              <div className="text-muted-foreground flex items-center text-sm">
+                <CalendarIcon className="mr-2 size-4" />
+                <span>First appearance</span>
               </div>
-            )}
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid gap-2">
-                <div className="text-muted-foreground flex items-center text-sm">
-                  <User className="mr-2 size-4" />
-                  <span>DID</span>
-                </div>
-                <div className="bg-muted/30 flex items-center justify-between rounded-md p-3">
-                  <code className="text-xs sm:text-sm">{did}</code>
-                  <CopyButton text={did} tooltip="Copy DID" />
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <div className="text-muted-foreground flex items-center text-sm">
-                  <AtSignIcon className="mr-2 size-4" />
-                  <span>Names and aliases</span>
-                  <HistoryDialog log={audit} />
-                </div>
-                <div className="bg-muted/30 flex items-center justify-between rounded-md p-3">
-                  <div className="flex flex-1 flex-col gap-1">
-                    {doc.alsoKnownAs ? (
-                      doc.alsoKnownAs.map((name) => (
-                        <code key={name} className="text-xs sm:text-sm">
-                          {name}
-                        </code>
-                      ))
-                    ) : (
-                      <span className="text-xs italic sm:text-sm">None</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <div className="text-muted-foreground flex items-center text-sm">
-                  <Calendar className="mr-2 size-4" />
-                  <span>First appearance</span>
-                </div>
-                <div className="bg-muted/30 rounded-md p-3">
-                  <span className="text-sm">
-                    {" "}
-                    {did.startsWith("did:plc:") && (
-                      <DateTime date={new Date(audit[0].createdAt)} />
-                    )}
-                    {did.startsWith("did:web:") && (
-                      <>Unavailable for web DIDs</>
-                    )}
-                  </span>
-                </div>
+              <div className="bg-muted/60 rounded-md p-3">
+                <code className="text-xs sm:text-sm">
+                  {did.startsWith("did:plc:") && (
+                    <DateTime date={new Date(audit[0].createdAt)} />
+                  )}
+                  {did.startsWith("did:web:") && <>Unavailable for web DIDs</>}
+                </code>
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="bg-muted/30 flex justify-between border-t px-6 pt-4 pb-6">
-            <Button variant="outline" size="sm" asChild>
-              <Link href="/">
-                <ArrowLeft className="mr-2 size-4" />
-                Back
-              </Link>
-            </Button>
-            {did.startsWith("did:plc:") && (
-              <Link href={`https://web.plc.directory/did/${did}`}>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <span>View on plc.directory</span>
-                  <ExternalLinkIcon className="ml-2 inline-block" size={14} />
-                </Button>
-              </Link>
-            )}
-            {did.startsWith("did:web:") && (
-              <Link href={`https://${didDomain}/.well-known/did.json`}>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <span>View DID document</span>
-                  <ExternalLinkIcon className="ml-2 inline-block" size={14} />
-                </Button>
-              </Link>
-            )}
-          </CardFooter>
-        </Card>
-      </div>
+          </div>
+        </CardContent>
+        <CardFooter className="bg-muted/60 flex justify-between border-t px-6 pt-4 pb-6">
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm">
+                View DID document
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>DID Document</DialogTitle>
+              </DialogHeader>
+              {/* <div className="max-h-[80vh] overflow-auto"> */}
+              <Code
+                lang="json"
+                lineNumbers
+                className="!my-0 [&>pre]:max-h-[80vh]"
+                codeClassName="text-sm"
+              >
+                {JSON.stringify(doc, null, 2)}
+              </Code>
+              {/* </div> */}
+            </DialogContent>
+          </Dialog>
+          {did.startsWith("did:plc:") && (
+            <Link href={`https://web.plc.directory/did/${did}`}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <span>View on plc.directory</span>
+                <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+              </Button>
+            </Link>
+          )}
+          {did.startsWith("did:web:") && (
+            <Link href={`https://${didDomain}/.well-known/did.json`}>
+              <Button variant="outline" size="sm" className="gap-2">
+                <span>Go to document</span>
+                <ExternalLinkIcon className="ml-2 inline-block" size={14} />
+              </Button>
+            </Link>
+          )}
+        </CardFooter>
+      </Card>
+      {/* PDS Card */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-2xl">
+                {isBskyHost ? (
+                  "🍄"
+                ) : (
+                  <ServerIcon className="text-muted-foreground size-5" />
+                )}
+              </div>
+              <div>
+                <CardTitle className="text-xl">Personal Data Server</CardTitle>
+                <CardDescription>Host information</CardDescription>
+              </div>
+            </div>
+            <Badge variant="outline" className="ml-auto">
+              {isBskyHost ? "Hosted by Bluesky" : "Independently hosted"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="bg-muted/60 rounded-md p-3">
+            <div className="flex items-center justify-between">
+              <code className="text-sm">{serviceEndpoint}</code>
+              <CopyButton text={serviceEndpoint} tooltip="Copy PDS URL" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

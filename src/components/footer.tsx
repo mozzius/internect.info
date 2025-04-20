@@ -3,9 +3,11 @@ import {
   SiGithub as GithubIcon,
 } from "@icons-pack/react-simple-icons";
 
-export function Footer() {
+import { cn } from "~/lib/utils";
+
+export function Footer({ className }: { className?: string }) {
   return (
-    <footer className="border-t py-6">
+    <footer className={cn("border-t py-6", className)}>
       <div className="container mx-auto flex flex-col items-center justify-between gap-4 px-4 md:flex-row">
         <p className="text-muted-foreground text-center text-sm">
           &copy; {new Date().getFullYear()} internect.info

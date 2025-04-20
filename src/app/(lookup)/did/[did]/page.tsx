@@ -35,9 +35,5 @@ export default async function InfoScreen({ params }: Props) {
   let { did } = await params;
   did = decodeURIComponent(did);
 
-  return (
-    <main>
-      <ActorInfo did={did} />
-    </main>
-  );
+  return <ActorInfo did={did} />;
 }

@@ -45,11 +45,7 @@ export default async function InfoScreen({ params }: Props) {
       res.data.did.startsWith("did:plc:") ||
       res.data.did.startsWith("did:web:")
     ) {
-      return (
-        <main>
-          <ActorInfo did={res.data.did} />
-        </main>
-      );
+      return <ActorInfo did={res.data.did} />;
     } else {
       error("Only PLC & web DIDs are currently supported by this tool.");
     }
