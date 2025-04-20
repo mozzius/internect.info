@@ -55,7 +55,7 @@ export function Search({ error: initialError }: Props) {
         }
       }
     },
-    enabled: query.length > 2,
+    enabled: query.length > 1,
     placeholderData: keepPreviousData,
   });
 
@@ -144,7 +144,7 @@ export function Search({ error: initialError }: Props) {
           </Button>
         </div>
 
-        {open && query && query.length > 2 && (
+        {open && query && query.length > 1 && (
           <div className="absolute top-full right-0 left-0 z-50 mt-1">
             <CommandList className="bg-popover max-h-[350px] overflow-auto rounded-lg border shadow-md">
               {isPending ? (
