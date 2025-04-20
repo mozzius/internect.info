@@ -159,7 +159,12 @@ export function Search({ error: initialError }: Props) {
                     >
                       <div className="flex items-center gap-2">
                         <Avatar className="outline-1 outline-neutral-200">
-                          <AvatarImage src={actor.avatar} />
+                          <AvatarImage
+                            src={actor.avatar?.replace(
+                              "/img/avatar/plain/",
+                              "/img/avatar_thumbnail/plain/",
+                            )}
+                          />
                           <AvatarFallback>
                             {(actor.displayName || actor.handle)
                               .split(" ")
