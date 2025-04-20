@@ -26,7 +26,7 @@ export function Footer() {
             <BlueskyIcon className="size-4" />
           </a>
           <a
-            href="https://github.com/mozzius/internect-info"
+            href="https://github.com/mozzius/internect.info"
             className="text-muted-foreground hover:text-foreground text-sm"
             target="_blank"
             rel="noreferrer"
