@@ -7,6 +7,7 @@ import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { Command as CommandPrimitive } from "cmdk";
 import { SearchIcon } from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -14,9 +15,9 @@ import {
   CommandGroup,
   CommandItem,
   CommandList,
+  CommandLoading,
 } from "~/components/ui/command";
 import { agent } from "~/lib/agent";
-import { cn } from "~/lib/utils";
 
 const HANDLE_REGEX =
   /^([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?$/;
@@ -29,11 +30,10 @@ export function Search({ error: initialError }: Props) {
   const [error, setError] = useState(initialError);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
-  const [inputFocus, setInputFocus] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const navigation = useRouter();
 
-  const { data: suggestions, isLoading } = useQuery({
+  const { data: suggestions, isPending } = useQuery({
     queryKey: ["suggestions", query],
     queryFn: async () => {
       if (query.startsWith("did:")) {
@@ -107,102 +107,91 @@ export function Search({ error: initialError }: Props) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    // If suggestions exist and dropdown is open, select the first one
-    if (open && suggestions && suggestions.length > 0 && !inputFocus) {
-      handleSearch(suggestions[0].did);
-    } else {
-      handleSearch(query);
-    }
-  };
-
   return (
     <div className="relative w-full">
-      <div className="relative">
-        <form onSubmit={handleSubmit} className="relative">
-          <div className="relative flex h-12 items-center overflow-hidden rounded-lg border shadow-md">
-            <SearchIcon className="text-muted-foreground absolute left-3 size-4" />
-            <input
-              type="text"
-              placeholder="alice.bsky.social"
-              className={cn(
-                "h-12 w-full border-0 bg-transparent pr-24 pl-10 outline-none focus:outline-none focus-visible:ring-0",
-                error && "text-red-500",
-              )}
-              value={query}
-              onChange={(e) => {
-                setError("");
-                setQuery(e.target.value);
-                setOpen(e.target.value.length > 0);
-              }}
-            />
-            <Button
-              ref={buttonRef}
-              type="submit"
-              className="absolute top-0 right-0 h-12 rounded-l-none rounded-r-lg px-6"
-            >
-              Explore
-            </Button>
-          </div>
-        </form>
+      <Command
+        className="relative overflow-visible rounded-lg"
+        shouldFilter={false}
+        loop
+      >
+        <div className="relative flex h-12 items-center overflow-hidden rounded-lg border shadow-md">
+          <SearchIcon className="text-muted-foreground pointer-events-none absolute left-3 size-4" />
+          <CommandPrimitive.Input
+            placeholder="alice.bsky.social"
+            className="h-12 w-full border-0 bg-transparent pr-24 pl-10 outline-none focus:outline-none focus-visible:ring-0"
+            value={query}
+            onValueChange={(value) => {
+              setError("");
+              setQuery(value);
+              setOpen(value.length > 0);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && (!open || !suggestions?.length)) {
+                e.preventDefault();
+                handleSearch(query);
+              }
+            }}
+          />
+          <Button
+            ref={buttonRef}
+            className="absolute top-0 right-0 h-12 rounded-l-none rounded-r-lg px-6"
+            onClick={() => handleSearch(query)}
+          >
+            Explore
+          </Button>
+        </div>
 
         {open && query && query.length > 2 && (
-          <div className="bg-popover absolute top-full right-0 left-0 z-50 mt-1 max-h-[300px] overflow-hidden rounded-md border shadow-md">
-            <Command className="w-full" shouldFilter={false}>
-              <CommandList className="max-h-[300px] w-full overflow-auto">
-                {isLoading ? (
-                  <CommandEmpty className="flex py-4">
-                    <span className="text-muted-foreground flex-1 text-center text-sm italic">
-                      Loading...
-                    </span>
-                  </CommandEmpty>
-                ) : suggestions && suggestions.length > 0 ? (
-                  <>
-                    <CommandGroup heading="Suggestions">
-                      {suggestions.map((actor) => (
-                        <CommandItem
-                          key={actor.did}
-                          onSelect={() => handleSearch(actor.did)}
-                          value={actor.did}
-                          className="px-3 py-2"
-                        >
-                          <div className="flex items-center">
-                            {actor.avatar && (
-                              <img
-                                src={actor.avatar}
-                                alt={actor.displayName || actor.handle}
-                                className="mr-2 h-8 w-8 rounded-full"
-                              />
-                            )}
-                            <div className="flex flex-col">
-                              {actor.displayName && (
-                                <span className="font-medium">
-                                  {actor.displayName}
-                                </span>
-                              )}
-                              <span className="text-muted-foreground text-sm">
-                                @{actor.handle}
-                              </span>
-                            </div>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </>
-                ) : (
-                  <CommandEmpty className="flex py-4">
-                    <span className="text-muted-foreground flex-1 text-center text-sm italic">
-                      No suggestions found.
-                    </span>
-                  </CommandEmpty>
-                )}
-              </CommandList>
-            </Command>
+          <div className="absolute top-full right-0 left-0 z-50 mt-1">
+            <CommandList className="bg-popover max-h-[350px] overflow-auto rounded-md border shadow-md">
+              {isPending ? (
+                <CommandLoading className="text-muted-foreground italic">
+                  Loading...
+                </CommandLoading>
+              ) : suggestions && suggestions.length > 0 ? (
+                <CommandGroup heading="Suggestions">
+                  {suggestions.map((actor) => (
+                    <CommandItem
+                      key={actor.did}
+                      onSelect={() => handleSearch(actor.did)}
+                      value={actor.did}
+                      className="px-3 py-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <Avatar className="outline-1 outline-neutral-200">
+                          <AvatarImage src={actor.avatar} />
+                          <AvatarFallback>
+                            {(actor.displayName || actor.handle)
+                              .split(" ")
+                              .map((word) => word.charAt(0))
+                              .slice(0, 2)
+                              .join("")
+                              .toLocaleUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                          {actor.displayName && (
+                            <span className="text-sm font-semibold">
+                              {actor.displayName}
+                            </span>
+                          )}
+                          <span className="text-muted-foreground text-xs">
+                            @{actor.handle}
+                          </span>
+                        </div>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              ) : (
+                <CommandEmpty className="text-muted-foreground italic">
+                  No suggestions found.
+                </CommandEmpty>
+              )}
+            </CommandList>
           </div>
         )}
-      </div>
+      </Command>
 
       {error ? (
         <div className="text-destructive-foreground mt-2 text-xs">{error}</div>
