@@ -190,7 +190,7 @@ export async function ActorInfo({ did }: { did: string }) {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="bg-muted/60 flex justify-between border-t px-6 pt-4 pb-6">
+        <CardFooter className="bg-muted/60 flex flex-wrap justify-between gap-2 border-t px-6 pt-4 pb-6">
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
@@ -240,7 +240,7 @@ export async function ActorInfo({ did }: { did: string }) {
                 {isBskyHost ? (
                   "🍄"
                 ) : (
-                  <ServerIcon className="text-muted-foreground size-5" />
+                  <ServerIcon className="size-5 text-blue-500" />
                 )}
               </div>
               <div>
