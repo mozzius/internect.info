@@ -6,17 +6,18 @@ import { cn } from "~/lib/utils";
 
 import "./globals.css";
 
+import PlausibleProvider from "next-plausible";
+
 import { Toaster } from "~/components/ui/sonner";
 import { Providers } from "./providers";
 
 const font = Open_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "internect.info — Explore the ATmosphere",
+  title: "Explore the ATmosphere — internect.info",
   description:
     "Find technical information about a Bluesky account from its handle or DID.",
   metadataBase: new URL("https://internect.info"),
-  other: { "google-adsense-account": "ca-pub-6921696462479931" },
 };
 
 export default function RootLayout({
@@ -26,6 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <PlausibleProvider
+          domain="internect.info"
+          customDomain="https://plausible.mozzius.dev"
+          trackOutboundLinks
+          selfHosted
+        />
+      </head>
       <body
         className={cn(
           "bg-background min-h-screen overflow-x-hidden font-sans antialiased",
