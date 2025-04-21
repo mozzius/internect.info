@@ -25,6 +25,7 @@ import {
   CardTitle,
 } from "~/components/ui/card";
 import { agent } from "~/lib/agent";
+import { FallbackCard } from "../fallback-card";
 import {
   Dialog,
   DialogContent,
@@ -232,11 +233,7 @@ export async function ActorInfo({
       </Card>
 
       {pds?.serviceEndpoint && (
-        <Suspense
-          fallback={
-            <div className="bg-muted/30 h-96 w-full rounded-xl shadow-lg" />
-          }
-        >
+        <Suspense fallback={<FallbackCard />}>
           <Collections did={did} pds={pds.serviceEndpoint} />
         </Suspense>
       )}
