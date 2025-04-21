@@ -1,5 +1,6 @@
 /* eslint-disable @next/next/no-img-element */
 
+import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { SiBluesky as BlueskyIcon } from "@icons-pack/react-simple-icons";
@@ -32,6 +33,8 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { BlueskyInfo, BlueskyInfoFallback } from "./bluesky-info";
+import Collections from "./collections";
 import { CopyButton } from "./copy-button";
 import { DateTime } from "./datetime";
 import { AuditRecord, HistoryDialog } from "./history";
@@ -49,7 +52,13 @@ type DidDocument = {
   service?: { id: string; type: string; serviceEndpoint: string }[];
 };
 
-export async function ActorInfo({ did }: { did: string }) {
+export async function ActorInfo({
+  did,
+  collection,
+}: {
+  did: string;
+  collection?: string;
+}) {
   if (!did.startsWith("did:")) {
     redirect(`/?error=${encodeURIComponent(`${did} is an invalid DID`)}`);
   }
@@ -77,14 +86,6 @@ export async function ActorInfo({ did }: { did: string }) {
     throw Error("unsupported DID method");
   }
 
-  const profile = await agent.getProfile({ actor: did }).catch((err) => {
-    if (err instanceof Error && err.message.includes("deactivated")) {
-      return "DEACTIVATED" as const;
-    } else {
-      redirect(`/?error=${encodeURIComponent(`Could not find "${did}"`)}`);
-    }
-  });
-
   const pds = doc.service?.findLast(
     (s) => s.type === "AtprotoPersonalDataServer",
   );
@@ -102,43 +103,9 @@ export async function ActorInfo({ did }: { did: string }) {
       {/* User Card */}
       <Card className="pb-0">
         <CardHeader>
-          {profile === "DEACTIVATED" ? (
-            <CardTitle className="text-2xl">
-              This account has been deactivated
-            </CardTitle>
-          ) : (
-            <div className="flex items-center gap-3">
-              <Avatar className="size-10 outline-1 outline-neutral-200">
-                <AvatarImage
-                  src={profile.data.avatar?.replace(
-                    "/img/avatar/plain/",
-                    "/img/avatar_thumbnail/plain/",
-                  )}
-                />
-                <AvatarFallback>
-                  {(profile.data.displayName || profile.data.handle)
-                    .split(" ")
-                    .map((word) => word.charAt(0))
-                    .slice(0, 2)
-                    .join("")
-                    .toLocaleUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div>
-                <CardTitle className="text-xl">
-                  {profile.data.displayName || profile.data.handle}
-                </CardTitle>
-                <CardDescription>@{profile.data.handle}</CardDescription>
-              </div>
-              <Badge
-                variant="outline"
-                className="ml-auto flex items-center gap-1.5"
-              >
-                <BlueskyIcon className="size-3" />
-                <span>Bluesky</span>
-              </Badge>
-            </div>
-          )}
+          <Suspense fallback={<BlueskyInfoFallback />}>
+            <BlueskyInfo did={did} />
+          </Suspense>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -250,9 +217,6 @@ export async function ActorInfo({ did }: { did: string }) {
                 <CardDescription>Host information</CardDescription>
               </div>
             </div>
-            <Badge variant="outline" className="ml-auto">
-              {isBskyHost ? "Hosted by Bluesky" : "Independently hosted"}
-            </Badge>
           </div>
         </CardHeader>
         <CardContent>
@@ -266,6 +230,16 @@ export async function ActorInfo({ did }: { did: string }) {
           </div>
         </CardContent>
       </Card>
+
+      {pds?.serviceEndpoint && (
+        <Suspense
+          fallback={
+            <div className="bg-muted/30 h-96 w-full rounded-xl shadow-lg" />
+          }
+        >
+          <Collections did={did} pds={pds.serviceEndpoint} />
+        </Suspense>
+      )}
     </div>
   );
 }
