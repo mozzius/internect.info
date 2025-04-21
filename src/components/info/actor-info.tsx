@@ -149,7 +149,9 @@ export async function ActorInfo({ did }: { did: string }) {
               </div>
               <div className="bg-muted/60 flex items-center justify-between rounded-md p-3">
                 <code className="text-xs sm:text-sm">{did}</code>
-                <CopyButton text={did} tooltip="Copy DID" />
+                <div className="-my-1.5">
+                  <CopyButton text={did} tooltip="Copy DID" />
+                </div>
               </div>
             </div>
 
@@ -180,7 +182,7 @@ export async function ActorInfo({ did }: { did: string }) {
                 <span>First appearance</span>
               </div>
               <div className="bg-muted/60 rounded-md p-3">
-                <code className="text-xs sm:text-sm">
+                <code className="block text-xs sm:text-sm">
                   {did.startsWith("did:plc:") && (
                     <DateTime date={new Date(audit[0].createdAt)} />
                   )}
@@ -257,7 +259,9 @@ export async function ActorInfo({ did }: { did: string }) {
           <div className="bg-muted/60 rounded-md p-3">
             <div className="flex items-center justify-between">
               <code className="text-sm">{serviceEndpoint}</code>
-              <CopyButton text={serviceEndpoint} tooltip="Copy PDS URL" />
+              <div className="-my-1.5">
+                <CopyButton text={serviceEndpoint} tooltip="Copy PDS URL" />
+              </div>
             </div>
           </div>
         </CardContent>
