@@ -23,7 +23,7 @@ export default async function Home({
           <div className="mb-8 text-center">
             <h2 className="relative mb-2 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
               Explore the{" "}
-              <span className="relative inline-block px-2">
+              <span className="relative inline-block">
                 <span className="relative z-10 text-blue-500">ATmosphere</span>
                 <AnimatedBlob className="scale-125" />
               </span>
