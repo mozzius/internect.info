@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AtpAgent } from "@atproto/api";
 import { LibraryBigIcon } from "lucide-react";
 
@@ -12,9 +13,11 @@ import {
 export default async function Collections({
   did,
   pds,
+  current,
 }: {
   did: string;
   pds: string;
+  current?: string;
 }) {
   const agent = new AtpAgent({ service: pds });
 
@@ -47,11 +50,24 @@ export default async function Collections({
         </div>
       </CardHeader>
       <CardContent>
-        {repo.collections.map((collection) => (
-          <div key={collection}>
-            <code className="text-sm">{collection}</code>
-          </div>
-        ))}
+        {repo.collections.map((collection) =>
+          current === collection ? (
+            <div
+              key={collection}
+              className="mt-0.5 block font-mono text-sm font-medium text-gray-500"
+            >
+              {collection}
+            </div>
+          ) : (
+            <Link
+              key={collection}
+              href={`/at/${did}/${collection}`}
+              className="mt-0.5 block font-mono text-sm text-blue-500 hover:underline"
+            >
+              {collection}
+            </Link>
+          ),
+        )}
       </CardContent>
     </Card>
   );

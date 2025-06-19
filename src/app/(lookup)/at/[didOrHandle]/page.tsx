@@ -1,8 +1,8 @@
 import { Metadata } from "next";
-import { redirect } from "next/navigation";
 
 import { ActorInfo } from "~/components/info/actor-info";
 import { agent } from "~/lib/agent";
+import { parseParams } from "~/lib/params";
 
 interface Props {
   params: Promise<{ didOrHandle: string }>;
@@ -31,32 +31,8 @@ export const generateMetadata = async ({
   }
 };
 
-export default async function InfoScreen({ params }: Props) {
-  let { didOrHandle } = await params;
-  didOrHandle = decodeURIComponent(didOrHandle);
-
-  let did: string;
-
-  if (didOrHandle.startsWith("did:")) {
-    did = didOrHandle;
-  } else {
-    const res = await agent
-      .resolveHandle({ handle: didOrHandle })
-      .catch(() => ({ success: false as const }));
-
-    if (!res.success) {
-      error("Handle not found. Are you sure it's correct?");
-      return; // weird that typescript needs this, when `error` returns `never`
-    }
-
-    did = res.data.did;
-  }
-
-  if (!did.startsWith("did:plc:") && !did.startsWith("did:web:")) {
-    error("Only PLC & web DIDs are currently supported by this tool.");
-  }
+export default async function ActorInfoScreen({ params }: Props) {
+  const { did } = await parseParams(params);
 
   return <ActorInfo did={did} />;
 }
-
-const error = (msg: string) => redirect(`/?error=${encodeURIComponent(msg)}`);

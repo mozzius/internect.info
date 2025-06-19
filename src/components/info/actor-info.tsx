@@ -29,62 +29,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import { getDidDoc } from "~/lib/did-resolution";
 import { BlueskyInfo, BlueskyInfoFallback } from "./bluesky-info";
 import Collections from "./collections";
 import { CopyButton } from "./copy-button";
 import { DateTime } from "./datetime";
-import { AuditRecord, HistoryDialog } from "./history";
+import { HistoryDialog } from "./history";
 
-type DidDocument = {
-  "@context": string[];
-  id: string;
-  alsoKnownAs?: string[];
-  verificationMethod?: {
-    id: string;
-    type: string;
-    controller: string;
-    publicKeyMultibase?: string;
-  }[];
-  service?: { id: string; type: string; serviceEndpoint: string }[];
-};
-
-export async function ActorInfo({
-  did,
-  collection,
-}: {
-  did: string;
-  collection?: string;
-}) {
+export async function ActorInfo({ did }: { did: string }) {
   if (!did.startsWith("did:")) {
     redirect(`/?error=${encodeURIComponent(`${did} is an invalid DID`)}`);
   }
 
-  let doc: DidDocument, audit: AuditRecord[], didDomain: string | null;
-  if (did.startsWith("did:plc:")) {
-    didDomain = null;
-
-    doc = (await fetch(`https://plc.directory/${did}`, {
-      cache: "no-store",
-    }).then((res) => res.json())) as DidDocument;
-
-    audit = (await fetch(`https://plc.directory/${did}/log/audit`, {
-      cache: "no-store",
-    }).then((res) => res.json())) as AuditRecord[];
-  } else if (did.startsWith("did:web:")) {
-    didDomain = did.split(":", 3)[2];
-
-    doc = (await fetch(`https://${didDomain}/.well-known/did.json`, {
-      cache: "no-store",
-    }).then((res) => res.json())) as DidDocument;
-
-    audit = [];
-  } else {
-    throw Error("unsupported DID method");
-  }
-
-  const pds = doc.service?.findLast(
-    (s) => s.type === "AtprotoPersonalDataServer",
-  );
+  const { doc, audit, pds, didDomain } = await getDidDoc(did);
 
   const serviceEndpoint = pds?.serviceEndpoint ?? "???";
 
