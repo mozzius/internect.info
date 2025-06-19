@@ -32,7 +32,7 @@ export default async function Collections({
   }
 
   return (
-    <Card className="gap-3">
+    <Card className="max-w-full gap-3 overflow-auto">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

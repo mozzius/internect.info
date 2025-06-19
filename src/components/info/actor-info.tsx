@@ -3,7 +3,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { SiBluesky as BlueskyIcon } from "@icons-pack/react-simple-icons";
 import { Code } from "bright";
 import {
   AtSignIcon,
@@ -13,8 +12,7 @@ import {
   ServerIcon,
 } from "lucide-react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
+import { FallbackCard } from "~/components/fallback-card";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -24,16 +22,13 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { agent } from "~/lib/agent";
-import { FallbackCard } from "../fallback-card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "../ui/dialog";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+} from "~/components/ui/dialog";
 import { BlueskyInfo, BlueskyInfoFallback } from "./bluesky-info";
 import Collections from "./collections";
 import { CopyButton } from "./copy-button";
@@ -160,7 +155,7 @@ export async function ActorInfo({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="bg-muted/30 flex flex-wrap justify-between gap-2 border-t px-6 pt-4 pb-6">
+        <CardFooter className="bg-muted/30 flex flex-wrap justify-between gap-2 border-t px-6 pb-4">
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">

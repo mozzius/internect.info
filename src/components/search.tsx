@@ -70,19 +70,15 @@ export function Search({ error: initialError }: Props) {
     }
 
     if (searchInput.startsWith("did:")) {
-      navigation.push(`/did/${searchInput}`);
+      navigation.push(`/at/${searchInput}`);
     } else if (HANDLE_REGEX.test(searchInput)) {
-      navigation.push(`/handle/${searchInput}`);
+      navigation.push(`/at/${searchInput}`);
     } else if (searchInput.startsWith("at://")) {
       try {
         const aturi = new AtUri(searchInput);
 
         if (aturi.host && !aturi.collection) {
-          if (aturi.host.startsWith("did:")) {
-            navigation.push(`/did/${aturi.host}`);
-          } else {
-            navigation.push(`/handle/${aturi.host}`);
-          }
+          navigation.push(`/at/${aturi.host}`);
         } else {
           setError("Record URIs are not yet supported.");
         }
@@ -94,11 +90,7 @@ export function Search({ error: initialError }: Props) {
         .slice("https://bsky.app/profile/".length)
         .split("/");
       if (rest.length === 0) {
-        if (handleOrDid.startsWith("did:")) {
-          navigation.push(`/did/${handleOrDid}`);
-        } else {
-          navigation.push(`/handle/${handleOrDid}`);
-        }
+        navigation.push(`/at/${handleOrDid}`);
       } else {
         setError("That Bluesky URL is not supported.");
       }
