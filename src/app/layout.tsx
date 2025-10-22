@@ -1,15 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Open_Sans } from "next/font/google";
-import { Analytics } from "@vercel/analytics/react";
-
-import { cn } from "~/lib/utils";
-
-import "./globals.css";
-
 import PlausibleProvider from "next-plausible";
 
 import { Toaster } from "~/components/ui/sonner";
+import { cn } from "~/lib/utils";
 import { Providers } from "./providers";
+
+import "./globals.css";
 
 const font = Open_Sans({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -50,7 +47,6 @@ export default function RootLayout({
       >
         <Providers>{children}</Providers>
         <Toaster />
-        <Analytics />
       </body>
     </html>
   );

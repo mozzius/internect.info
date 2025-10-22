@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AtUri } from "@atproto/syntax";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
@@ -30,6 +30,7 @@ export function Search({ error: initialError }: Props) {
   const [error, setError] = useState(initialError);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<string>();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const navigation = useRouter();
 
@@ -58,6 +59,16 @@ export function Search({ error: initialError }: Props) {
     enabled: query.length > 1,
     placeholderData: keepPreviousData,
   });
+
+  const firstItem = suggestions?.[0]?.did;
+  const [prevFirstItem, setPrevFirstItem] = useState(firstItem);
+
+  if (firstItem !== prevFirstItem) {
+    setPrevFirstItem(firstItem);
+    if (firstItem !== undefined) {
+      setSelected(firstItem);
+    }
+  }
 
   const handleSearch = (input: string) => {
     if (!input) return;
@@ -102,6 +113,8 @@ export function Search({ error: initialError }: Props) {
   return (
     <div className="relative w-full">
       <Command
+        value={selected}
+        onValueChange={setSelected}
         className="relative overflow-visible rounded-lg"
         shouldFilter={false}
         loop
@@ -148,8 +161,8 @@ export function Search({ error: initialError }: Props) {
                   {suggestions.map((actor) => (
                     <CommandItem
                       key={actor.did}
-                      onSelect={() => handleSearch(actor.did)}
                       value={actor.did}
+                      onSelect={() => handleSearch(actor.did)}
                       className="px-3 py-2"
                     >
                       <div className="flex items-center gap-2">

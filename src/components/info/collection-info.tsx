@@ -1,5 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
-
 import { Suspense } from "react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
