@@ -32,12 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <PlausibleProvider
-          domain="internect.info"
-          customDomain="https://plausible.mozzius.dev"
-          trackOutboundLinks
-          selfHosted
-        />
+        <PlausibleProvider />
       </head>
       <body
         className={cn(
